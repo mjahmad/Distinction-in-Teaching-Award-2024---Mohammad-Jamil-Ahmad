@@ -1,0 +1,12 @@
+On your kali Linux, create a new folder named bmo, navigate to this website (https://www1.bmo.com/banking/digital/login) and save the page in that directory as index.html
+
+1. Open Terminal: Launch the terminal window in Kali Linux.
+2. Update Package Lists: Make sure your package lists are updated with the following command: sudo apt-get update
+3. Install SET: sudo apt-get install set
+4. launch the tool: sudo setoolkit
+5. Choose Social Engineering Attacks (1), => Website Attack Vectors (2), => 3) Credential Harvester Attack Method => 3) Custom Import, and for the custome IP address, we will be using the IP of our kali linux VM => Now choose a destination on your kali linux to colne the website(/home/kali/MIST400/bmo)
+6. Choose 2 (Copy entire folder) =>then provide the link to the website above
+7. Now, leave the tool running. You may now pass that "fake" webpage to others via emails/ shared notes/ etc.
+8. users will provide the credintials. On Kali, hit ctrl + c to generate report.You should now see a report under /root/.set/reports
+
+An other method is to use google/twitter template.

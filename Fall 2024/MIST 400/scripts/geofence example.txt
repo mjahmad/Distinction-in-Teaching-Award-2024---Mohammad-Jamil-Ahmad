@@ -1,0 +1,28 @@
+#Example of geofence
+
+import geocoder
+from geopy.distance import geodesic
+def get_current_location():
+    # Attempt to get the current location based on the IP address
+    g = geocoder.ip('me')
+    if g.ok:
+        return g.latlng  # Returns a tuple (latitude, longitude)
+    else:
+        print("Error fetching current location")
+        return None
+def is_inside_geofence(current_location, geofence_center, geofence_radius_km):
+    # Calculate the distance between the current location and the center of the geofence
+    distance = geodesic(current_location, geofence_center).km
+    # Check if the distance is within the geofence radius
+    return distance <= geofence_radius_km
+# Define the geofence center and radius
+geofence_center = (38.41925, -82.44515)  # Example: Huntington coordinates
+geofence_radius_km = 10  # Geofence radius in kilometers
+# Get the current location
+current_location = get_current_location()
+if current_location:
+    # Check if the current location is within the geofence
+    if is_inside_geofence(current_location, geofence_center, geofence_radius_km):
+        print("Inside geofence")
+    else:
+        print("Outside geofence")

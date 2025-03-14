@@ -1,0 +1,4 @@
+usernumber,username,fullname,email,phone
+1,user1,Julia Smith,julia@uni.edu,3045555555
+2,user2,Ali Hassan,Ali@uni.edu,304304304
+3,user3,Chris Ward,Chris@uni.edu,3043333333

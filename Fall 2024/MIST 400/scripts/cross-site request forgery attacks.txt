@@ -1,0 +1,78 @@
+To demonstrate Cross-Site Request Forgery (CSRF) attacks and their mitigation, we'll create two simple Python Flask applications. The first will be vulnerable to CSRF attacks, while the second will implement CSRF protection using Flask-WTF, a Flask extension that provides, among other things, CSRF protection.
+Application Vulnerable to CSRF Attacks
+This application will include a form that submits a POST request to change a user's email. It doesn't implement CSRF protection, making it vulnerable to CSRF attacks.
+File: vulnerable_csrf_app.py:
+from flask import Flask, request, make_response
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return '''
+        <form action="/change-email" method="post">
+            <input type="email" name="email" placeholder="Enter new email">
+            <input type="submit" value="Change Email">
+        </form>
+    '''
+@app.route('/change-email', methods=['POST'])
+def change_email():
+    new_email = request.form['email']
+    # Here, you would normally update the user's email in the database.
+    # This example simply returns a success message.
+    return make_response(f'Email changed to: {new_email}')
+if __name__ == '__main__':
+    app.run(debug=True)
+Application with CSRF Protection
+To mitigate CSRF attacks, we'll use Flask-WTF to add CSRF protection to the form. This will require the client to submit a valid CSRF token along with the form data.
+First, ensure Flask-WTF is installed:
+pip install Flask-WTF
+
+Application NOT Vulnerable to CSRF Attacks, using Flask-WTF
+File: csrf_protected_app.py:
+from flask import Flask, render_template_string
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+from flask_wtf.csrf import CSRFProtect
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'a_very_secret_key'
+csrf = CSRFProtect(app)
+class EmailForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired()])
+    submit = SubmitField('Change Email')
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    form = EmailForm()
+    if form.validate_on_submit():
+        new_email = form.email.data
+        # Here, you would normally update the user's email in the database.
+        # This example simply returns a success message.
+        return f'Email changed to: {new_email}'
+    return render_template_string('''
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <input type="email" name="email" placeholder="Enter new email">
+            <input type="submit" value="Change Email">
+        </form>
+    ''', form=form)
+if __name__ == '__main__':
+    app.run(debug=True)
+
+Demonstrating the Effect with a CSRF Attack
+A CSRF attack against the first application (vulnerable_csrf_app.py) could be demonstrated by an attacker tricking a victim into submitting a form from another website that sends a POST request to /change-email. Since the first application doesn't verify the source of the request, it would process it as legitimate.
+Example of an attack page, createt this HTML page:
+<!DOCTYPE html>
+<html>
+<body onload="document.forms[0].submit();">
+    <form action="http://127.0.0.1:5000/change-email" method="POST" style="display:none;">
+        <input type="hidden" name="email" value="attacker@example.com">
+        <input type="submit" value="Change Email">
+    </form>
+</body>
+</html>
+
+If a user who is logged into the vulnerable application visits this malicious page, the script automatically submits the form, potentially changing the user's email to one controlled by the attacker without the user's consent.
+The second application (csrf_protected_app.py) mitigates this risk by requiring a valid CSRF token to be submitted with the form. Attempts to change the email via a form on another site will fail because the attacker's form won't include a valid CSRF token, thus protecting the user from this type of attack.
+Demonstrating the Attack
+User Session Simulation: Open your Flask application in a web browser and simulate a user session where the user is logged in, or a session is otherwise active. Since our simple application does not include user sessions, this step is more about understanding the context in which a CSRF attack would be relevant.
+Triggering the Attack: While the simulated user session is active, open the malicious HTML page (malicious_page.html) in a new tab or window of the same browser. This page automatically submits a form to the Flask application, attempting to change the user's email to attacker@example.com.
+Observing the Result: If the Flask application processes the request, it indicates that the application is vulnerable to CSRF attacks, as it did not validate whether the request came from a trusted source or validate the intent of the user to perform that action.
+While each of teh applications are running, open the HTML page using :xdg-open /path/to/your/file.html

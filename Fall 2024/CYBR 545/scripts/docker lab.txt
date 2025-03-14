@@ -1,0 +1,104 @@
+Guide for Running the SSH Docker Container on Kali Linux
+This guide walks you through setting up and running a Docker container with an Ubuntu 20.04 base image and an OpenSSH Server. The instructions assume you're using Kali Linux and have never worked with Docker before.
+Step 1: Install Docker on Kali Linux
+Before proceeding, ensure Docker is installed. Run the following command in the terminal:
+sudo apt update && sudo apt install -y docker.io 
+Enable and start Docker:
+sudo systemctl enable --now docker 
+Verify installation:
+docker --version 
+If Docker is installed correctly, this command will display the installed version.
+Step 2: Install Docker Compose
+You'll also need Docker Compose. Install it with:
+sudo apt install -y docker-compose 
+Check the installation:
+docker-compose --version 
+Step 3: Create the Dockerfile
+Open a terminal.
+Create a new directory for your project, then navigate to the new directory:
+mkdir ~/docker-ssh && cd ~/docker-ssh
+ 
+Create a Dockerfile using a text editor (e.g., Nano or Vim):
+nano Dockerfile
+ 
+Copy and paste the following content into the file:
+# Use Ubuntu 20.04 as the base image
+ FROM ubuntu:20.04
+ # Avoid interactive prompts during package installations
+ENV DEBIAN_FRONTEND=noninteractive
+ # Install OpenSSH Server
+RUN apt-get update && apt-get install -y openssh-server && mkdir /var/run/sshd
+ # Create a user 'sshuser' with password authentication enabled
+RUN useradd -m -s /bin/bash sshuser && echo 'sshuser:weakpassword' | chpasswd
+ # Enable password authentication in SSH config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+ # Expose port 22 for SSH access
+EXPOSE 22 # Start SSH daemon
+CMD ["/usr/sbin/sshd", "-D"] 
+Save and exit:
+In Nano, press CTRL + X, then Y, and hit ENTER.
+Step 4: Create a Docker Hub Account
+Go to Docker Hub.
+Click Sign Up and create an account using your mix account or GitHub account (do not sign up using Google).
+Verify your email and log in.
+Step 5: Build the Docker Image
+On your terminal, navigate to your project directory (~/docker-ssh), then build your Docker image using the command below (without <>):
+docker build -t <your-username>/<image-name>:latest .
+Replace <your-username> with your Docker Hub username.
+Replace <image-name> with a unique image name (e.g., vulnerable-ssh)
+Example:
+docker build -t bluepali/vulnerable-ssh:latest . 
+Step 6: Push the Image to Docker Hub
+Log in to Docker Hub from the terminal:
+docker login
+
+Enter your Docker Hub username and password when prompted.
+Switch to super user using: sudo su
+
+Push your image:
+docker push <your-username>/<image-name>:latest
+
+Example:
+docker push bluepali/vulnerable-ssh:latest
+
+Now you should see this file on yoiur docker hub online. 
+Step 7: Create a docker-compose.yml File
+On your terminal, and under the same directory we created above, open a new file:
+nano docker-compose.yml
+Copy and paste the following content:
+version: '3'
+services:
+ vulnerable_ssh:
+    image: your-username/vulnerable-ssh:latest  # Replace 'your-username' with your actual Docker Hub username
+   ports:
+     - "2222:22"
+    restart: always 
+Replace bluepali/vulnerable-ssh with your own Docker image name.
+Save and exit (CTRL + X, then Y, then ENTER).
+Step 8: Run the Container with Docker Compose
+To start the container, run:
+docker-compose up -d 
+The -d flag runs the container in detached mode (in the background).
+Port 2222 on the host maps to port 22 inside the container.
+Step 9: Verify and Connect to the Container
+Check if the container is running:
+docker ps
+You should see a running container.
+Connect via SSH:
+Use ssh to connect:
+ssh sshuser@localhost -p 2222
+Username: sshuser
+Password: weakpassword
+Now you are connected =) 
+Step 10: Stop and Remove the Container
+If you want to stop the container, run:
+docker-compose down 
+To remove the image completely (do not do this yet)
+docker rmi <your-username>/<image-name>:latest
+
+Now, we can use tools such as Hydra to try to break through by guessing the password. We will do this in class soon.
+Final Notes
+This setup is for learning purposes only. The SSH setup is insecure (weak password, password authentication enabled). Do not use this in production.
+If SSH login fails, check logs:
+docker logs <container-id>
+If you encounter permission issues, prepend sudo to your Docker commands.

@@ -1,0 +1,58 @@
+We will create two simple Python Flask applications to demonstrate the concept of clickjacking, one that's vulnerable and one with protection. To observe the real-life differences between these two applications, we'll also create an HTML page that attempts to perform a clickjacking attack.
+Step 1: Creating the Flask Applications
+A. Application Vulnerable to Clickjacking (vulnerable_clickjack_app.py)
+from flask import Flask, render_template_string
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return render_template_string('''
+        <h1>Clickjacking Vulnerable App</h1>
+        <p>If you see this through an iframe, clickjacking is possible.</p>
+    ''')
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+B. Application Protected Against Clickjacking (protected_clickjack_app.py)
+from flask import Flask, render_template_string, make_response
+app = Flask(__name__)
+@app.route('/')
+def home():
+    response = make_response(render_template_string('''
+        <h1>Clickjacking Protected App</h1>
+        <p>If you cannot see this through an iframe, protection is working.</p>
+    '''))
+    response.headers['X-Frame-Options'] = 'DENY'  # This header protects against clickjacking.
+    return response
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)
+Step 2: Install Flask
+If you haven't already, ensure Flask is installed:
+pip install Flask
+Step 3: Running the Flask Applications
+Open two terminals. In the first, run:
+FLASK_APP=vulnerable_clickjack_app.py flask run --port=5000
+FLASK_APP=protected_clickjack_app.py flask run --port=5001
+
+Step 4: Creating the Attacker's HTML Page
+Create an HTML file named attacker_page.html with the following content:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clickjacking Test</title>
+</head>
+<body>
+    <h2>Attacker's Page (Trying to Frame Your App)</h2>
+    <iframe src="http://127.0.0.1:5000/" style="width:600px; height:200px;"></iframe>
+    <p>^ Vulnerable App Iframe ^</p>
+    <iframe src="http://127.0.0.1:5001/" style="width:600px; height:200px;"></iframe>
+    <p>^ Protected App Iframe ^</p>
+</body>
+</html>
+Step 5: Observing the Difference
+Vulnerable Application (http://127.0.0.1:5000/): This application does not implement any clickjacking protection. When you open attacker_page.html in a browser, you will be able to see the content of this application through the iframe.
+Protected Application (http://127.0.0.1:5001/): This application uses the X-Frame-Options: DENY header to prevent it from being framed by other sites. When you look at attacker_page.html, you should notice that the browser blocks this application from being displayed inside the iframe.
+Step 6: Open the Attacker's HTML Page
+To view the effect, open attacker_page.html in your browser. You can do this by navigating to the file's location in your file manager and double-clicking it, or by opening it directly from the terminal with:
+xdg-open attacker_page.html
+
+Observing Real-Life Differences
+In a real-life scenario, the vulnerable application's iframe will display its content without any issue, showing how it can be susceptible to clickjacking attacks. In contrast, the protected application will either not display or show a browser-specific error message in place of its content, demonstrating the effectiveness of the X-Frame-Options header in preventing clickjacking.

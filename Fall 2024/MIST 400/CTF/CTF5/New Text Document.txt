@@ -1,0 +1,27 @@
+
+
+HackermanVoyager:
+g58g8d24g5f27fg8fddd031g9624dd26 Caesar+3
+
+HackermanGalactica:
+"XIII" NZXG65DZHIXS66DUNB3S4YLEPBXGY4ZONF2S6V3UMZVWSVDINN5C6I3NNFUXUZ3FHVGGY2TRL5EHE2TFGY2CQJ2HFVKHMLLEGAWTSJJSJAXSKM2VE4WGW4TBPEXXS3LZOJZWY23YFETGI4TWNRVT2VCENJGVESZRJRZUO6SJJBXXM2SONRVEC5S2OJUHEM3MKV2WMTTVJNRWIVCILI2VSQLEMNNGWZ3YMJBU4Z2PNBMTKWSZLIYA====
+
+HackermanEnterprise:
+VgpNl0kXxik7ZbwdBPuI7i05U20PVX1IG4hX6ngoQgg=
+
+1. Go to https://stylesuxx.github.io/steganography/:
+decode Voyager, get the decrypted message (g58g8d24g5f27fg8fddd031g9624dd26 Caesar+3)
+
+
+2. Go to https://www.dcode.fr/caesar-cipher, use the code from step 1 (g58g8d24g5f27fg8fddd031g9624dd26), do you see anything ?
+	A. Decrypt using Bruteforce
+	B. Decrypt using secnd option get (d58d8a24d5c27cd8caaa031d9624aa26)
+
+3. Go to https://www.dcode.fr/cipher-identifier use the code from step 2 (d58d8a24d5c27cd8caaa031d9624aa26)and hit Analyze
+	A. Click on MD5, and use the code you got from step 2 (you should get notevenclose)
+
+4. Now, move to 34 decoder: https://www.dcode.fr/base-32-encoding and pase the string that ends up with ==== from HackermanGalactica 
+	A. get the link
+5. Go to https://www.boxentriq.com/code-breaking/vigenere-cipher and paste link:
+	A. Keep standard mode
+	B. Decode, see first option which is a github hint
